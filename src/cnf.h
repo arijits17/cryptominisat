@@ -190,6 +190,10 @@ public:
     vector<Lit>      toClear;
     uint64_t MYFLAG = 1;
 
+    vector<uint64_t> level_pos;
+    uint64_t num_moments_cnt = 0;
+    double lbd_avg = 0, moment_avg = 0;
+
     bool okay() const
     {
         return ok;

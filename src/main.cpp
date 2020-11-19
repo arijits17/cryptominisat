@@ -694,6 +694,18 @@ void Main::add_supported_options()
         , "Maximum glue used by glue-based restart strategy when populating glue history.")
     ;
 
+    po::options_description momentOptions("Moment options");
+    propOptions.add_options()
+    ("lam0", po::value(&conf.lam0)->default_value(conf.lam0)
+        , "Value for lambda 0.")
+    ("lam1", po::value(&conf.lam1)->default_value(conf.lam1)
+        , "Value for lambda 1.")
+    ("lam2", po::value(&conf.lam2)->default_value(conf.lam2)
+        , "Value for lambda 2.")
+    ("lam3", po::value(&conf.lam3)->default_value(conf.lam3)
+        , "Value for lambda 3.")
+    ;
+
     po::options_description chrono_bt_opts("Propagation options");
     chrono_bt_opts.add_options()
     ("diffdeclevelchrono", po::value(&conf.diff_declev_for_chrono)->default_value(conf.diff_declev_for_chrono)

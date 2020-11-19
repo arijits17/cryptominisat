@@ -314,6 +314,10 @@ class DLL_PUBLIC SolverConf
         int       update_glues_on_analyze;
         uint32_t  max_glue_cutoff_gluehistltlimited;
 
+        //Moments
+        double    lam0, lam1, lam2, lam3;
+
+
         //chrono bt
         int diff_declev_for_chrono;
 

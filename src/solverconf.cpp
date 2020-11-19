@@ -151,6 +151,10 @@ DLL_PUBLIC SolverConf::SolverConf() :
         #else
         , max_glue_cutoff_gluehistltlimited(50)
         #endif
+        , lam0 (1)
+        , lam1 (0)
+        , lam2 (0)
+        , lam3 (0)
 
         //Chono BT
         , diff_declev_for_chrono (20)

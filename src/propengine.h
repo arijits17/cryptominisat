@@ -165,6 +165,7 @@ protected:
     void new_vars(const size_t n) override;
     void save_on_var_memory();
     template<class T> uint32_t calc_glue(const T& ps);
+    template<class T> uint32_t calc_moment(const T& ps);
 
     //For state saving
     void save_state(SimpleOutFile& f) const;
@@ -330,6 +331,58 @@ uint32_t PropEngine::calc_glue(const T& ps)
     }
     return nblevels;
 }
+
+template<class T> inline
+uint32_t PropEngine::calc_moment(const T& ps)
+{
+    double moment = 0;
+    MYFLAG++;
+    uint32_t nblevels = 0;
+    vector<uint64_t> level_cnts;
+    int level_this = 0;
+    int moment1 = 0, moment2 = 0, moment3 = 0;
+
+    num_moments_cnt++;
+
+
+    for (Lit lit: ps) {
+        int l = varData[lit.var()].level;
+        if (l != 0 && permDiff[l] != MYFLAG) {
+            permDiff[l] = MYFLAG;
+            nblevels++;
+            level_cnts.push_back(1);
+            level_pos[l] = level_this++;
+        }
+
+        if (l != 0) {
+                uint64_t level_at = level_pos[l];
+                assert(level_at < level_cnts.size());
+                level_cnts[level_at]++;
+
+                moment1 += 1;
+                moment2 += (2*level_cnts[level_at] - 1);
+                moment3 +=
+                    (3*level_cnts[level_at]*level_cnts[level_at] - 3*level_cnts[level_at] + 1);
+            }
+        }
+
+        moment = conf.lam0*nblevels
+                 + conf.lam1 * moment1
+                 + conf.lam2 * moment2
+                 + conf.lam3 * moment3;
+
+        moment /= (conf.lam0 + conf.lam1 + conf.lam2 + conf.lam3);
+
+        lbd_avg += (nblevels - lbd_avg)/num_moments_cnt;
+        moment_avg += (moment - moment_avg)/num_moments_cnt;
+
+        moment *= lbd_avg/moment_avg;
+
+        assert(moment > 0);
+
+        return (int)moment;
+}
+
 
 inline PropResult PropEngine::prop_normal_helper(
     Clause& c
