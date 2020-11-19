@@ -773,9 +773,9 @@ bool Solver::addClauseInt(vector<Lit>& ps, bool red)
             #ifndef FINAL_PREDICTOR
             assert(!cl->stats.locked_for_data_gen);
             cl->stats.which_red_array = 2;
-            if (cl->stats.glue <= conf.glue_put_lev0_if_below_or_eq) {
+            if (cl->stats.moment <= conf.glue_put_lev0_if_below_or_eq) {
                 cl->stats.which_red_array = 0;
-            } else if (cl->stats.glue <= conf.glue_put_lev1_if_below_or_eq
+            } else if (cl->stats.moment <= conf.glue_put_lev1_if_below_or_eq
                 && conf.glue_put_lev1_if_below_or_eq != 0
             ) {
                 cl->stats.which_red_array = 1;

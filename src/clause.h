@@ -111,6 +111,7 @@ struct ClauseStats
     ClauseStats()
     {
         glue = 1000;
+        moment = 1000;
         marked_clause = false;
         ttl = 0;
         which_red_array = 2;
@@ -123,6 +124,7 @@ struct ClauseStats
 
     //Stored data
     uint32_t glue:20;  //currently in code limited to 100'000
+    uint32_t moment:20;
     uint32_t is_decision:1;
     uint32_t marked_clause:1;
     uint32_t ttl:2;

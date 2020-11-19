@@ -271,6 +271,7 @@ class Searcher : public HyperEngine
             PropBy confl //The conflict that we are investigating
             , uint32_t& out_btlevel  //backtrack level
             , uint32_t &glue         //glue of the learnt clause
+            , uint32_t &moment         //glue of the learnt clause
             , uint32_t &glue_before_minim     //glue of the unminimised learnt clause
         );
         bool  handle_conflict(PropBy confl);// Handles the conflict clause
@@ -303,6 +304,7 @@ class Searcher : public HyperEngine
         #endif
         Clause* handle_last_confl(
             const uint32_t glue
+            , const uint32_t moment
             , const uint32_t old_decision_level
             , const uint32_t glue_before_minim
             , const bool is_decision

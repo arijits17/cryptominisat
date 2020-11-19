@@ -769,6 +769,7 @@ void Searcher::analyze_conflict(
     const PropBy confl
     , uint32_t& out_btlevel
     , uint32_t& glue
+    , uint32_t& moment
     , uint32_t&
     #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
     glue_before_minim
@@ -804,11 +805,16 @@ void Searcher::analyze_conflict(
 
     //further minimisation 1 -- short, small glue clauses
     glue = std::numeric_limits<uint32_t>::max();
+    moment = std::numeric_limits<uint32_t>::max();
     if (learnt_clause.size() <= conf.max_size_more_minim) {
         glue = calc_glue(learnt_clause);
+        moment = calc_moment(learnt_clause);
         if (glue <= conf.max_glue_more_minim) {
             minimize_using_permdiff();
         }
+    }
+    if (moment == std::numeric_limits<uint32_t>::max()) {
+        moment = calc_moment(learnt_clause);
     }
     if (glue == std::numeric_limits<uint32_t>::max()) {
         glue = calc_glue(learnt_clause);
@@ -1005,11 +1011,13 @@ bool Searcher::litRedundant(const Lit p, uint32_t abstract_levels)
 template void Searcher::analyze_conflict<true>(const PropBy confl
     , uint32_t& out_btlevel
     , uint32_t& glue
+    , uint32_t& moment
     , uint32_t& glue_before_minim
 );
 template void Searcher::analyze_conflict<false>(const PropBy confl
     , uint32_t& out_btlevel
     , uint32_t& glue
+    , uint32_t& moment
     , uint32_t& glue_before_minim
 );
 
@@ -1667,6 +1675,7 @@ void Searcher::set_clause_data(
 
 Clause* Searcher::handle_last_confl(
     const uint32_t glue
+    , const uint32_t moment
     , const uint32_t old_decision_level
     , const uint32_t glue_before_minim
     , const bool is_decision
@@ -1710,6 +1719,7 @@ Clause* Searcher::handle_last_confl(
         );
         cl->makeRed(sumConflicts);
         cl->stats.glue = glue;
+        cl->stats.moment = moment;
         #if defined(FINAL_PREDICTOR) || defined(STATS_NEEDED)
         cl->stats.orig_glue = glue;
         #endif
@@ -1724,10 +1734,10 @@ Clause* Searcher::handle_last_confl(
 
         if (cl->stats.locked_for_data_gen) {
             which_arr = 0;
-        } else if (glue <= conf.glue_put_lev0_if_below_or_eq) {
+        } else if (moment <= conf.glue_put_lev0_if_below_or_eq) {
             which_arr = 0;
         } else if (
-            glue <= conf.glue_put_lev1_if_below_or_eq
+            moment <= conf.glue_put_lev1_if_below_or_eq
             && conf.glue_put_lev1_if_below_or_eq != 0
         ) {
             which_arr = 1;
@@ -1808,12 +1818,13 @@ bool Searcher::handle_conflict(PropBy confl)
     }
 
     uint32_t backtrack_level;
-    uint32_t glue;
+    uint32_t glue, moment;
     uint32_t glue_before_minim;
     analyze_conflict<false>(
         confl
         , backtrack_level  //return backtrack level here
         , glue             //return glue here
+        , moment             //return glue here
         , glue_before_minim         //return glue before minimization here
     );
     print_learnt_clause();
@@ -1855,7 +1866,8 @@ bool Searcher::handle_conflict(PropBy confl)
     print_learning_debug_info();
     assert(value(learnt_clause[0]) == l_Undef);
     glue = std::min<uint32_t>(glue, std::numeric_limits<uint32_t>::max());
-    Clause* cl = handle_last_confl(glue, old_decision_level, glue_before_minim, false);
+    moment = glue;
+    Clause* cl = handle_last_confl(glue, moment, old_decision_level, glue_before_minim, false);
     attach_and_enqueue_learnt_clause<false>(cl, backtrack_level, true);
 
     //Add decision-based clause
@@ -1872,7 +1884,7 @@ bool Searcher::handle_conflict(PropBy confl)
 
         learnt_clause = decision_clause;
         print_learnt_clause();
-        cl = handle_last_confl(learnt_clause.size(), old_decision_level, learnt_clause.size(), true);
+        cl = handle_last_confl(learnt_clause.size(), learnt_clause.size(), old_decision_level, learnt_clause.size(), true);
         attach_and_enqueue_learnt_clause<false>(cl, backtrack_level, false);
     }
 

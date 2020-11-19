@@ -150,6 +150,7 @@ void CNF::enlarge_minimal_datastructs(size_t n)
     seen.insert(seen.end(), 2*n, 0);
     seen2.insert(seen2.end(), 2*n, 0);
     permDiff.insert(permDiff.end(), 2*n, 0);
+    level_pos.insert(level_pos.end(), 2*n, 0);
 }
 
 void CNF::save_on_var_memory()
@@ -178,6 +179,8 @@ void CNF::save_on_var_memory()
     seen2.shrink_to_fit();
     permDiff.resize(nVars()*2);
     permDiff.shrink_to_fit();
+    level_pos.resize(nVars()*2);
+    level_pos.shrink_to_fit();
 }
 
 //Test for reflectivity of interToOuterMain & outerToInterMain
